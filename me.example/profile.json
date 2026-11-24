@@ -1,0 +1,36 @@
+{
+  "name": "",
+  "sex": null,
+  "birth_year": null,
+  "units": "km",
+  "hr": {
+    "max": null,
+    "rest": null,
+    "lt1": null,
+    "lt2": null,
+    "source": null,
+    "strap_products": []
+  },
+  "lab": null,
+  "racing": {
+    "super_shoes": false,
+    "plate_gain": 0.025
+  },
+  "coach": {
+    "has_coach": false,
+    "name": ""
+  },
+  "injury": {
+    "watch": "",
+    "pain_threshold": 2
+  },
+  "preferences": {
+    "system": "",
+    "max_quality_per_week": 2,
+    "notes": ""
+  },
+  "public_results": {
+    "country": "",
+    "profiles": []
+  }
+}

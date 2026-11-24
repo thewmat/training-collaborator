@@ -1,0 +1,9 @@
+# Personal data and secrets never leave your machine
+.env
+me/
+demo/
+*.fit
+*.FIT
+__pycache__/
+*.pyc
+.DS_Store
