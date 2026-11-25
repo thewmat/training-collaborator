@@ -7,7 +7,10 @@ collaborator that:
   session you meant to;
 - tracks your fitness as an easy-to-read curve: the pace you run at your threshold heart rate, week by
   week;
-- estimates race times with Jack Daniels' VDOT and gives Daniels' training paces;
+- estimates race times with Jack Daniels' VDOT and gives Daniels' training paces, with the detailed
+  tables: zone grid with HR, tempo pace by duration, rep splits 100-2000 m, races 1500 m-50K, intensity
+  points and heat;
+- refreshes on its own: each new Garmin run is reviewed and the curve, profile and dashboard rebuilt;
 - suggests sessions with pace bands and heart-rate caps when you ask (and leaves your coach's plan
   alone when you have one);
 - finds your official PBs in public results and assembles your best performances from Garmin;
@@ -31,10 +34,30 @@ Then:
    (5 minutes). No key? `python3 -m runlab import <Garmin export zip>` works too.
 2. Open the folder in Claude Code and say **"set me up"**. Claude runs onboarding: pulls your data,
    asks about your thresholds, coach and goals, finds your PBs, and builds your dashboard.
-3. After that, just talk to it: "how was this morning's session?", "am I getting fitter?", "what could
+3. Optional, once: `python3 -m runlab schedule install`. Your computer then checks Garmin every 30
+   minutes; each new run is reviewed, and the fitness curve, profile snapshot and dashboard are rebuilt
+   without you asking. Opening Claude Code also refreshes, and Claude starts by giving a verdict on any
+   run it hasn't seen.
+4. After that, just talk to it: "how was this morning's session?", "am I getting fitter?", "what could
    I run for a half?", "I want to break 40 for 10K by May", "plan my race".
 
 Requires Python 3.9+ and Claude Code (terminal, desktop app, IDE, or claude.ai/code).
+
+## Keeping it up to date
+
+Garmin's Personal API is pull-only, so new runs are found by checking. Three ways, use any:
+
+| How | What happens |
+|---|---|
+| `python3 -m runlab schedule install [--every 30]` | A background job on your computer (macOS LaunchAgent, Linux cron, Windows Task Scheduler) runs `runlab auto` every 30 min while the computer is on, with a desktop notification per new run. `schedule status` shows the last pass; `schedule remove` uninstalls. |
+| Opening Claude Code here | The session-start hook in `.claude/settings.json` runs `runlab auto`; Claude sees the new runs and reviews them first. |
+| `python3 -m runlab watch` | Same as the job, in an open terminal. |
+
+Each pass: sync, review every new run (`me/out/reviews/`), list it in `me/out/inbox.md` for Claude's
+verdict, rebuild the curve, bests, history, readiness and dashboard, and write the current fitness into
+`me/profile.json` (`current`). It flags, never changes, your thresholds: a chest-strap max HR above your
+profile's max is reported for you to decide. Add `--claude` to the job to have Claude Code write the
+verdicts too, headless (it uses your Claude plan).
 
 ## Privacy
 
@@ -64,6 +87,11 @@ Requires Python 3.9+ and Claude Code (terminal, desktop app, IDE, or claude.ai/c
 | `history` | training history report |
 | `readiness` | green / amber / red for today |
 | `dashboard` | everything above as one HTML page: `me/out/dashboard.html` |
+| `tables` | detailed Daniels tables: zone grid, tempo by duration, rep splits, races 1500 m-50K, points, heat |
+| `points` | Daniels intensity points per week |
+| `auto` | one refresh pass: sync, review new runs, rebuild curve, profile snapshot and dashboard |
+| `watch` | keep refreshing every N minutes while a terminal is open |
+| `schedule install / remove / status` | the background refresh job (launchd, cron or Task Scheduler) |
 
 ## How it thinks
 
@@ -82,9 +110,11 @@ The short version:
 ```
 CLAUDE.md                 how Claude works with you
 .claude/skills/           onboarding, connect-garmin, review-session, fitness-check, race-estimate,
-                          workouts, find-pbs, training-history, goals-and-race-plan, weekly-review
-runlab/                   toolkit: garmin, fit, analyse, curve, vdot, workouts, bests, pbs,
-                          history, readiness, report, demo
+                          workouts, find-pbs, training-history, goals-and-race-plan, weekly-review,
+                          auto-refresh
+.claude/settings.json     permissions, and the session-start hook that runs runlab auto
+runlab/                   toolkit: garmin, fit, analyse, curve, vdot, daniels, workouts, bests, pbs,
+                          history, readiness, report, auto, schedule, demo
 docs/                     garmin-setup.md, methods.md
 me.example/               template for your private workspace (copied to me/ by init)
 tests/                    unit tests on synthetic data: python3 -m unittest

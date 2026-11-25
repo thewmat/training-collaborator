@@ -142,7 +142,7 @@ def generate(home, weeks=30, seed=7):
     json.dump(daily, open(os.path.join(D, "daily.json"), "w"))
     json.dump(sleep, open(os.path.join(D, "sleep.json"), "w"))
     json.dump(hrv, open(os.path.join(D, "hrv.json"), "w"))
-    json.dump({"name": "Alex (synthetic demo athlete)", "units": "km",
+    json.dump({"name": "Alex (synthetic demo athlete)", "demo": True, "units": "km",
                "hr": {"max": HRMAX, "rest": REST, "lt1": LT1, "lt2": LT2, "source": "demo values"},
                "racing": {"super_shoes": False, "plate_gain": 0.025}, "coach": {"has_coach": False},
                "preferences": {"system": "threshold", "max_quality_per_week": 2}},

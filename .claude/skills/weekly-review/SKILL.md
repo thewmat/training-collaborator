@@ -12,12 +12,14 @@ description: Review the past training week - volume, sessions executed, fitness 
    Name repeated patterns.
 4. Fitness: threshold pace now vs last week and 4 weeks ago (`runlab curve`). Say if it's a valid
    read (enough strap points near LT2).
-5. Readiness trend: resting HR vs baseline, sleep, HRV, load ratio.
-6. Coming week:
+5. Load in Daniels points: `python3 -m runlab points --weeks 6` (HR basis on strap runs, pace basis
+   otherwise). A jump of more than ~15 % week on week is a load flag like a km jump.
+6. Readiness trend: resting HR vs baseline, sleep, HRV, load ratio.
+7. Coming week:
    - Coach's week: add pace bands and HR caps to each session (`workouts` skill, targets only), flag
      risks.
    - No coach: write the week only if they asked for it.
-7. Reply (under ~150 words):
+8. Reply (under ~150 words):
 ```
 Week: <km> (<+/- %> vs last), <n> sessions, long <km>
 Executed: <best and worst session in one line each>

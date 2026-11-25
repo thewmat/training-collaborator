@@ -6,7 +6,9 @@ description: Review a run or workout the athlete has completed - execution again
 # Review a session
 
 ## Gather
-1. `python3 -m runlab sync` (skip if synced in the last hour).
+1. `python3 -m runlab sync` (skip if synced in the last hour, or if `runlab auto` already ran this
+   session). Runs listed in `me/out/inbox.md` were synced and reviewed by `runlab auto`; their reports are
+   in `me/out/reviews/`. Give each one a verdict, then delete its line from the inbox.
 2. `python3 -m runlab review` (latest) or `review <garmin id>`. For a race on a measured course add
    `--official <metres>`; for a race inside a longer recording add `--lap N`.
 3. Find what was planned: `me/plan.md`, the coach's session, or what the athlete told you. If nothing
@@ -38,8 +40,8 @@ vs plan: <the gaps, in s/km and bpm>
 Fitness: <pace at LT2 HR or "no valid read: wrist HR / reps too short">
 Next: <the one change for the next session, or "none">
 ```
-Then append the entry to `me/log/YYYY-MM.md` (format in `me/log/README.md`) and any new athlete fact to
-`me/athlete.md`.
+Then append the entry to `me/log/YYYY-MM.md` (format in `me/log/README.md`), any new athlete fact to
+`me/athlete.md`, and remove the run's line from `me/out/inbox.md` if it is there.
 
 ## Don't
 - Don't rewrite the coach's next session. Give pace bands and caps for it if asked.

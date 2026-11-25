@@ -4,9 +4,10 @@ import re
 MILE = 1609.344
 
 DISTANCES = {            # canonical event name -> metres
-    "400m": 400, "800m": 800, "1500m": 1500, "Mile": MILE, "3000m": 3000, "2 miles": 2 * MILE,
-    "5K": 5000, "5000m": 5000, "parkrun": 5000, "5 miles": 5 * MILE, "10K": 10000, "10000m": 10000,
-    "10 miles": 10 * MILE, "Half marathon": 21097.5, "20 miles": 20 * MILE, "Marathon": 42195,
+    "400m": 400, "800m": 800, "1500m": 1500, "Mile": MILE, "2000m": 2000, "3000m": 3000, "2 miles": 2 * MILE,
+    "5K": 5000, "5000m": 5000, "parkrun": 5000, "8K": 8000, "5 miles": 5 * MILE, "10K": 10000, "10000m": 10000,
+    "12K": 12000, "15K": 15000, "10 miles": 10 * MILE, "20K": 20000, "Half marathon": 21097.5, "25K": 25000,
+    "30K": 30000, "20 miles": 20 * MILE, "Marathon": 42195, "50K": 50000,
 }
 
 ALIASES = {
@@ -15,7 +16,9 @@ ALIASES = {
     "mar": "Marathon", "marathon": "Marathon", "5m": "5 miles", "5 mile": "5 miles", "10m": "10 miles",
     "10 mile": "10 miles", "parkrun": "parkrun", "pr": "parkrun", "3000": "3000m", "5000": "5000m",
     "10000": "10000m", "1500": "1500m", "800": "800m", "400": "400m", "3k": "3000m", "2m": "2 miles",
-    "20m": "20 miles", "20 mile": "20 miles",
+    "20m": "20 miles", "20 mile": "20 miles", "2000": "2000m", "2k": "2000m", "8k": "8K", "8km": "8K",
+    "12k": "12K", "12km": "12K", "15k": "15K", "15km": "15K", "20k": "20K", "20km": "20K", "25k": "25K",
+    "25km": "25K", "30k": "30K", "30km": "30K", "50k": "50K", "50km": "50K",
 }
 
 

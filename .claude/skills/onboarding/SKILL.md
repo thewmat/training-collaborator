@@ -42,7 +42,12 @@ session on a strap (`runlab review`), and let `config.thresholds` estimate LT1/L
 ## 5. Goals
 Run **goals-and-race-plan** to capture what they want, in their words.
 
-## 6. Close
+## 6. Keep it fresh
+Ask once: "Should I check Garmin every 30 minutes and review new runs automatically?" On yes:
+`python3 -m runlab schedule install` (skill **auto-refresh**). Either way, run `python3 -m runlab auto`
+once now so the baseline is recorded.
+
+## 7. Close
 Reply with: current fitness (threshold pace, easy pace, VDOT, race estimates), the three facts from
 their history that matter most, their goal restated with the gap to it, and where the dashboard is
 (`me/out/dashboard.html`).

@@ -18,6 +18,16 @@ type with its pace band, HR cap and rule at the current VDOT. Daniels volume lim
 <= 10 % of the week, I <= 8 % (max 10 km), R <= 5 % (max 8 km), M <= 20 % (max 29 km), long run <= 25 %
 or 150 min.
 
+## Detailed Daniels tables
+`python3 -m runlab tables [--only zones,tempo,splits,races,points,heat]` at the current VDOT:
+- **zones**: recovery, easy, moderate and high aerobic, then marathon to mile intensity, with % VO2max,
+  Daniels' % max HR, % HR reserve, pace per km and mile. Measured LT1/LT2 caps win over the % max HR
+  column.
+- **tempo**: continuous T pace for 20-60 min (a 60-min tempo is ~5.5 % slower than a 20-min one).
+- **splits**: 100 m to 2000 m rep times at R, I, T and mile, 5K, 10K, half and marathon race pace. Use
+  these for track and rep targets instead of converting by hand.
+- **points**: Daniels intensity points per minute; `python3 -m runlab points` totals them per week.
+
 ## Setting targets for any session
 1. Identify the intensity: easy, long, sub-threshold, threshold (continuous or reps), 10K, 5K/I, R,
    hills, strides.

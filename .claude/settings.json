@@ -8,5 +8,19 @@
       "Read(./.env)",
       "Read(./.env.*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python3 -m runlab auto --hook 2>/dev/null || true",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
   }
 }

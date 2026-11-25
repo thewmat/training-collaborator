@@ -8,7 +8,11 @@ decides; you supply evidence-backed verdicts.
 
 1. If `me/profile.json` does not exist, run the **onboarding** skill. Stop there.
 2. Read `me/athlete.md`, `me/goals.md`, `me/plan.md` and the newest file in `me/log/`.
-3. If the request needs fresh data, run `python3 -m runlab sync` first (needs the Garmin key, see
+3. The session-start hook has already run `python3 -m runlab auto` (sync, review new runs, rebuild curve,
+   profile snapshot and dashboard). If its output lists new runs, or `me/out/inbox.md` has entries, give
+   each one a verdict (skill **review-session**) before anything else unless the athlete asked for
+   something specific, then delete its inbox line.
+4. If the request needs fresher data than that, run `python3 -m runlab sync` (needs the Garmin key, see
    **connect-garmin**). If sync fails, say exactly why and continue with stored data.
 
 `me/` is the athlete's private workspace. It is gitignored. Never commit it, never paste the Garmin key
@@ -70,6 +74,8 @@ into chat, files or commits; it lives only in `.env` or the cloud environment's 
   one rule that fixes it.
 - **Load:** flag week-on-week volume jumps over ~10-15 %, three quality days in one week, and long-run
   jumps over ~15 %. Flag, don't cut a coach's plan.
+- **Heat** (`runlab tables --only heat`): Daniels' heat cost is for race-day pacing plans only. Fitness
+  reads and session verdicts stay on raw pace.
 - **Readiness** (`runlab readiness`): green = run the session at its targets, amber = slow edge of
   every target, red = easy or rest.
 - **Training systems:** respect the one the athlete uses. A threshold (Norwegian-style) week is
@@ -86,6 +92,8 @@ into chat, files or commits; it lives only in `.env` or the cloud environment's 
 | Session verdicts | `me/log/YYYY-MM.md` (format in `me/log/README.md`) |
 | Official PBs | `python3 -m runlab pbs ...` -> `me/pbs.json` |
 | Generated reports | `me/out/` (dashboard.html, history.md, curve.json ...) |
+| Runs waiting for a verdict; their automatic reports | `me/out/inbox.md`, `me/out/reviews/` |
+| Current fitness snapshot (machine-written, never edit) | `me/profile.json` -> `current` |
 
 Write a fact the moment you learn it. The next conversation starts without this one's context.
 
@@ -99,12 +107,15 @@ Write a fact the moment you learn it. The next conversation starts without this 
 | `compare A B` | two sessions matched on cumulative work time |
 | `curve` | fitness curve: pace at LT1/LT2 HR over time, VDOT, race estimates |
 | `estimate` / `paces` | VDOT race equivalents and Daniels paces (`--race "10K 41:30"`, `--vdot 52`, or from the curve) |
+| `tables` | detailed Daniels tables: zone grid, tempo by duration, rep splits 100-2000 m, races 1500 m-50K, points, heat |
+| `points` | Daniels intensity points per week from the athlete's runs |
 | `workouts` | session library with pace bands and HR caps (`--system threshold|daniels|marathon`) |
 | `bests` | best performances assembled from Garmin data (races, in-run efforts) with VDOT |
 | `pbs list|add|import` | official PBs from public results |
 | `history` | training history facts: years, weeks, builds before races, breaks, peaks |
 | `readiness` | green / amber / red from resting HR, sleep, HRV, Body Battery, load |
 | `dashboard` | rebuild everything into `me/out/dashboard.html` |
+| `auto` / `watch` / `schedule install` | one refresh pass; keep refreshing; install the background job (skill **auto-refresh**) |
 | `demo` | synthetic athlete in `./demo`, to see every output without data |
 
 Method details: `docs/methods.md`. Garmin setup: `docs/garmin-setup.md`.
@@ -112,5 +123,5 @@ Method details: `docs/methods.md`. Garmin setup: `docs/garmin-setup.md`.
 ## Skills
 
 `onboarding`, `connect-garmin`, `review-session`, `fitness-check`, `race-estimate`, `workouts`,
-`find-pbs`, `training-history`, `goals-and-race-plan`, `weekly-review`. Use the matching skill whenever a
+`find-pbs`, `training-history`, `goals-and-race-plan`, `weekly-review`, `auto-refresh`. Use the matching skill whenever a
 request falls in its area.
