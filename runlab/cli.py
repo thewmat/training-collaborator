@@ -64,6 +64,8 @@ def cmd_doctor(a):
 
 def cmd_sync(a):
     from . import garmin
+    if config.profile().get("demo"):
+        raise SystemExit("this is the synthetic demo workspace: Garmin data is never synced into it")
     garmin.sync(history_days=a.days, fit_days=a.fit_days, all_fits=a.all_fits)
 
 
@@ -173,6 +175,51 @@ def cmd_dashboard(a):
     print("wrote", report.build())
 
 
+def cmd_tables(a):
+    from . import daniels
+    vd, src = _vdot_arg(a)
+    prof = config.profile()
+    lt1, lt2, hrmax, _ = config.thresholds(prof)
+    gain = prof["racing"]["plate_gain"] if prof["racing"].get("super_shoes") and src.startswith("fitness") else 0.0
+    print(f"source: {src}")
+    print(daniels.text(vd, a.hrmax or prof["hr"].get("max"), a.rest or prof["hr"].get("rest"),
+                       prof.get("units", "km"), a.only.split(",") if a.only else None, gain))
+
+
+def cmd_points(a):
+    from . import daniels
+    vd, src = _vdot_arg(a)
+    rows = daniels.weekly_points(vd, a.weeks)
+    print(f"Daniels intensity points per week (VDOT {vd:.1f} from {src})")
+    print("week of      points  runs  basis      level")
+    for r in rows:
+        basis = "HR" if r["runs"] and r["hr_basis"] == r["runs"] else "pace" if not r["hr_basis"] else "mixed"
+        print(f"{r['week']}  {r['points']:>6.1f}  {r['runs']:>4}  {basis if r['runs'] else '-':<9}  {r['level']}")
+
+
+def cmd_auto(a):
+    from . import auto
+    res = auto.run(sync=not a.no_sync, notify_on_new=a.notify, with_claude=a.claude)
+    out = auto.text(res, quiet=a.quiet or a.hook, hook=a.hook)
+    if out:
+        print(out)
+
+
+def cmd_watch(a):
+    from . import auto
+    auto.watch(a.every, notify_on_new=not a.no_notify, with_claude=a.claude)
+
+
+def cmd_schedule(a):
+    from . import schedule
+    if a.action == "install":
+        print(schedule.install(a.every, a.claude, a.dry_run))
+    elif a.action == "remove":
+        print(schedule.remove())
+    else:
+        print(schedule.status())
+
+
 def cmd_demo(a):
     from . import demo
     home = os.path.abspath(a.dir)
@@ -210,6 +257,27 @@ def main(argv=None):
     s = sub.add_parser("workouts", help="Daniels-based session library with pace bands and HR caps")
     s.add_argument("--vdot", type=float); s.add_argument("--race"); s.add_argument("--km", type=float, help="weekly km")
     s.add_argument("--system", choices=["daniels", "threshold", "marathon"]); s.set_defaults(f=cmd_workouts)
+    s = sub.add_parser("tables", help="detailed Daniels tables: zones, tempo durations, splits, races, points, heat")
+    s.add_argument("--vdot", type=float); s.add_argument("--race"); s.add_argument("--hrmax", type=float)
+    s.add_argument("--rest", type=float); s.add_argument("--only", help="comma list of zones,tempo,splits,races,points,heat")
+    s.set_defaults(f=cmd_tables)
+    s = sub.add_parser("points", help="Daniels intensity points per week from your runs")
+    s.add_argument("--vdot", type=float); s.add_argument("--race"); s.add_argument("--weeks", type=int, default=8)
+    s.set_defaults(f=cmd_points)
+    s = sub.add_parser("auto", help="one refresh pass: sync, review new runs, rebuild curve, profile and dashboard")
+    s.add_argument("--quiet", action="store_true", help="print only when there are new runs or flags")
+    s.add_argument("--hook", action="store_true", help="output for the Claude Code session-start hook")
+    s.add_argument("--no-sync", action="store_true", help="use stored data only")
+    s.add_argument("--notify", action="store_true", help="desktop notification when a new run is reviewed")
+    s.add_argument("--claude", action="store_true", help="have Claude Code write verdicts headless (uses your Claude plan)")
+    s.set_defaults(f=cmd_auto)
+    s = sub.add_parser("watch", help="keep running: refresh every N minutes")
+    s.add_argument("--every", type=int, default=30); s.add_argument("--no-notify", action="store_true")
+    s.add_argument("--claude", action="store_true"); s.set_defaults(f=cmd_watch)
+    s = sub.add_parser("schedule", help="install | remove | status of the background refresh job")
+    s.add_argument("action", choices=["install", "remove", "status"]); s.add_argument("--every", type=int, default=30)
+    s.add_argument("--claude", action="store_true"); s.add_argument("--dry-run", action="store_true")
+    s.set_defaults(f=cmd_schedule)
     s = sub.add_parser("bests", help="best performances from Garmin data"); s.add_argument("--refresh", action="store_true"); s.set_defaults(f=cmd_bests)
     s = sub.add_parser("pbs", help="official PBs: list | add EVENT TIME | import FILE")
     s.add_argument("action", choices=["list", "add", "import"]); s.add_argument("event", nargs="?"); s.add_argument("time", nargs="?")

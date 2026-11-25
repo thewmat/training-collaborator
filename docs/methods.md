@@ -82,3 +82,37 @@ files.
 Daniels' session types and volume limits (T <= 10 % of the week, I <= 8 % / 10 km, R <= 5 % / 8 km,
 M <= 20 % / 29 km, long <= 25 % / 150 min), with threshold-system variants: short-rest threshold reps are
 LT2 effort (~1.5 % faster than continuous T on 1 km/60 s), guarded by rep-end HR.
+
+## Detailed Daniels tables (`daniels.py`)
+
+Every table is computed from the VDOT equations at the athlete's VDOT; none is copied.
+
+- **Zone grid**: Daniels' mapping between % VO2max and % max HR, `%HRmax = 0.65 + 0.35 x (%VO2max - 0.59) / 0.41`
+  (capped at 100 %). Recovery 65 %, easy 70-75 % of max HR, converted to % VO2max and pace. Moderate and
+  high aerobic sit one and two thirds of the way from the top of easy to marathon pace (and HR). Race rows
+  use the VDOT race time and Daniels' `%max(t)`. % HR reserve uses resting HR from the profile. Measured
+  LT1/LT2 caps win over this generic HR column.
+- **Continuous tempo**: T pace for 20 min, slowed by 1.2, 2.2, 2.7, 3.3, 3.8, 4.3, 4.9 and 5.5 % for 25-60 min.
+- **Rep splits**: 100-2000 m at R, I, T and mile, 5K, 10K, half and marathon race pace.
+- **Race table**: 1500 m to 50K by VDOT (not Riegel).
+- **Intensity points**: Daniels' points per minute by % VO2max (0.1 at easy, 0.683 at T, 1.0 at VO2max,
+  2.1 at 120 %), linearly interpolated. Per run: 60-second bins of the FIT file, scored on % max HR when the
+  run has chest-strap HR and max HR is known, otherwise on pace (% VO2max of the bin's speed at the
+  current VDOT). Weekly reference levels: 50 novice high-school, 100 advanced high-school, 150
+  collegiate, 200 elite.
+- **Heat**: no cost to 60 F (15.6 C), then 0.75 % of 5K time per 5 F. For race-day plans only.
+
+Checked against a widely used Daniels workbook at VDOT 63.4: zone paces, aerobic interpolation, tempo
+table and heat table agree to the second. Two deliberate differences: race projections use VDOT
+throughout (the workbook can switch to Riegel), and R and I keep the published-table calibration (R =
+mile pace + 2.3 %, I = 97.5 %), about 1 s per 400 m slower than the workbook's R formula.
+
+## Auto-refresh (`auto.py`, `schedule.py`)
+
+A pass: incremental sync (skipped without a key or in the demo workspace), then every run not seen
+before is reviewed (`analyse`), written to `me/out/reviews/` and listed in `me/out/inbox.md`. The first
+pass only records a baseline. A run whose FIT is not downloaded yet waits up to 3 days. When anything is
+new the curve, bests, history, readiness and dashboard are rebuilt and `profile.json["current"]` is
+rewritten (VDOT, pace at LT1/LT2, easy band, window, last run, highest strap HR seen). A lock file stops
+overlapping passes. Flags (strap max HR above the profile max, a threshold-pace change of 1 s/km or more
+since the last refresh) are reported, never applied.

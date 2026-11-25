@@ -21,5 +21,10 @@ description: Estimate race times with VDOT (Daniels/Gilbert), from a recent race
    points and in s/km at threshold. Typical gains: ~1 VDOT per 4-6 weeks of consistent training for a
    returning or developing runner, less near a lifetime best. Say whether the gap is realistic by the
    date, plainly.
-6. **Pacing a race:** even splits at goal pace; for the marathon cap HR in the first half at about
+6. **Other distances:** `python3 -m runlab tables --only races` gives 1500 m to 50K (8K, 12K, 15K, 20K,
+   25K, 30K included) with pace per km and mile and Daniels' % VO2max for each.
+7. **Heat on race day:** `python3 -m runlab tables --only heat` (Daniels: no cost to 15.6 C, then
+   0.75 % of 5K time per 2.8 C). Use it to set the race-day pace plan when the forecast is warm. Never
+   use it to adjust a training session's fitness read.
+8. **Pacing a race:** even splits at goal pace; for the marathon cap HR in the first half at about
    LT2 - 8 bpm and don't open at threshold HR. Fuel 60-90 g carbs/h from 20-30 min, rehearsed in training.

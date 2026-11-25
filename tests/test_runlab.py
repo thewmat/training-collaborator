@@ -9,8 +9,10 @@ from contextlib import redirect_stdout
 
 HOME = tempfile.mkdtemp(prefix="runlab-test-")
 os.environ["RUNLAB_HOME"] = HOME
+os.environ.pop("GARMIN_PERSONAL_API_KEY", None)        # tests never touch Garmin
 
-from runlab import analyse, bests, cli, config, curve, demo, history, pbs, readiness, report, vdot, workouts  # noqa: E402
+from runlab import (analyse, auto, bests, cli, config, curve, daniels, demo, history, pbs, readiness, report,  # noqa: E402
+                    schedule, vdot, workouts)
 from runlab.fit import decode, hr_source  # noqa: E402
 from runlab.units import hms, parse_time  # noqa: E402
 
@@ -174,3 +176,93 @@ class TestReadinessWorkoutsReport(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDaniels(unittest.TestCase):
+    def workbook_pace(self, vd, pct_vo2):
+        """Seconds per km from the inverse speed equation used in Daniels' tables."""
+        x = vd * pct_vo2
+        return 1000 / (29.54 + 5.000663 * x - 0.007546 * x * x) * 60
+
+    def test_zone_grid_matches_workbook_formulas(self):
+        g = {r["zone"]: r for r in daniels.zone_grid(50, hrmax=190, rest=50)}
+        self.assertAlmostEqual(g["Recovery"]["pct_vo2"], 0.59, places=6)
+        self.assertAlmostEqual(3600 / g["Recovery"]["kmh"], self.workbook_pace(50, 0.59), delta=1.0)
+        self.assertAlmostEqual(3600 / g["Easy (high)"]["kmh"], self.workbook_pace(50, daniels.vo2_frac(0.75)), delta=1.0)
+        self.assertAlmostEqual(g["Recovery"]["hr"], 0.65 * 190, places=6)
+        self.assertAlmostEqual(g["Recovery"]["pct_hrr"], (0.65 * 190 - 50) / 140, places=6)
+        self.assertEqual(g["Mile"]["pct_hr"], 1.0)
+        self.assertAlmostEqual(g["5K"]["time_s"], vdot.race_time(50, 5000), places=6)
+        e, m = 3600 / g["Easy (high)"]["kmh"], 3600 / g["Marathon"]["kmh"]
+        self.assertAlmostEqual(3600 / g["Moderate aerobic"]["kmh"], e + (m - e) / 3, places=6)
+        order = [r["kmh"] for r in daniels.zone_grid(50)]
+        self.assertEqual(order, sorted(order))                       # every zone faster than the one before
+
+    def test_tempo_and_splits(self):
+        t = vdot.paces(50)["T"]
+        tt = daniels.tempo_table(50)
+        self.assertEqual(tt[0][1], t)
+        self.assertAlmostEqual(tt[-1][1], t / 1.055, places=9)
+        s = daniels.split_table(50)
+        self.assertAlmostEqual(s["T"][1000], 3600 / t, places=6)
+        self.assertAlmostEqual(s["R"][400], 89, delta=1.0)
+        self.assertAlmostEqual(s["5K race"][1000], vdot.race_time(50, 5000) / 5, places=6)
+
+    def test_points_and_heat(self):
+        self.assertAlmostEqual(daniels.points_per_min(0.88), 0.683)
+        self.assertAlmostEqual(daniels.points_per_min(0.89), (0.683 + 0.723) / 2, places=6)
+        self.assertAlmostEqual(daniels.points_per_min(pct_hr=0.92), 0.683)
+        self.assertEqual(daniels.points_per_min(0.3), 0.1)
+        self.assertAlmostEqual(daniels.run_points([(600, daniels.kmh_at(50, 0.88), None)], 50), 6.83, places=2)
+        self.assertEqual(daniels.heat_factor(15), 1.0)
+        self.assertAlmostEqual(daniels.heat_factor((70 - 32) * 5 / 9), 1.015, places=6)
+        self.assertEqual(daniels.level(120), "advanced high-school")
+
+    def test_weekly_points_from_demo(self):
+        rows = daniels.weekly_points(50, weeks=4)
+        self.assertEqual(len(rows), 4)
+        self.assertTrue(any(r["points"] > 30 for r in rows))
+
+    def test_race_table_extended(self):
+        evs = [e for e, *_ in daniels.race_table(50)]
+        self.assertIn("15K", evs)
+        self.assertIn("50K", evs)
+        times = [t for _, t, *_ in daniels.race_table(50)]
+        self.assertEqual(times, sorted(times))
+
+
+class TestAuto(unittest.TestCase):
+    def test_passes(self):
+        for f in ("auto.json", "auto.lock"):
+            if os.path.exists(config.data(f)):
+                os.remove(config.data(f))
+        r1 = auto.run()
+        self.assertEqual(r1["new"], [])                              # first pass: baseline only
+        st = json.load(open(config.data("auto.json")))
+        last = sorted(st["seen"])[-1]
+        st["seen"].remove(last)
+        json.dump(st, open(config.data("auto.json"), "w"))
+        r2 = auto.run()
+        self.assertEqual([n["id"] for n in r2["new"]], [last])
+        self.assertTrue(os.path.exists(config.out("inbox.md")))
+        self.assertIn(last, open(config.out("inbox.md")).read())
+        cur = json.load(open(config.path("profile.json")))["current"]
+        self.assertIn("pace_lt2", cur)
+        self.assertEqual(auto.run()["new"], [])                      # nothing new on the third pass
+        self.assertEqual(auto.text(auto.run(), quiet=True), "")
+
+    def test_lock(self):
+        open(config.data("auto.lock"), "w").write("1")
+        try:
+            self.assertEqual(auto.run()["status"], "busy")
+        finally:
+            os.remove(config.data("auto.lock"))
+
+    def test_schedule_specs(self):
+        self.assertEqual(schedule.cron_spec(30), "*/30 * * * *")
+        self.assertEqual(schedule.cron_spec(60), "0 * * * *")
+        self.assertEqual(schedule.cron_spec(120), "0 */2 * * *")
+        line = schedule.cron_line(30)
+        self.assertIn("runlab auto --quiet --notify".replace(" ", "' '"), line)
+        self.assertIn("# runlab-auto", line)
+        self.assertIn("<integer>1800</integer>", schedule.plist(30))

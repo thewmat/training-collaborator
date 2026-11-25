@@ -27,7 +27,8 @@ main{max-width:980px;margin:0 auto;padding:24px 16px 64px}h1{font-size:22px;marg
 td,th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:14px}th{color:var(--mute);font-weight:500}
 .note{color:var(--mute);font-size:13px;margin:8px 0 0}svg{width:100%;height:auto;display:block}svg text{fill:var(--mute);font-size:11px}
 .pill{display:inline-block;padding:2px 10px;border-radius:99px;color:#fff;font-weight:600}.Green{background:var(--good)}.Amber{background:var(--warn)}.Red{background:var(--bad)}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px}
+.scroll{overflow-x:auto}.card h2+.scroll,.scroll+h2{margin-top:16px}
 """
 
 
@@ -123,6 +124,13 @@ def bars(weeks, w=900, h=180):
     return "".join(out)
 
 
+def _auto_line():
+    import os
+    p = config.out("inbox.md")
+    n = sum(1 for ln in open(p) if ln.startswith("- [ ]")) if os.path.exists(p) else 0
+    return f" {n} run{'s' if n != 1 else ''} waiting for a verdict." if n else ""
+
+
 def build():
     prof = config.profile()
     c, b, hist, rd = _load("curve.json"), _load("bests.json"), _load("history.json"), _load("readiness.json")
@@ -131,7 +139,8 @@ def build():
     name = prof.get("name") or "Runner"
     H = [f"<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
          f"<title>Training Dashboard</title><style>{CSS}</style></head><body><main>",
-         f"<h1>{_esc(name)}: training dashboard</h1><p class=sub>Built {dt.date.today():%d %b %Y} from Garmin data.</p>"]
+         f"<h1>{_esc(name)}: training dashboard</h1><p class=sub>Built {dt.datetime.now():%d %b %Y %H:%M} from Garmin data."
+         + _auto_line() + "</p>"]
     if c and c.get("current"):
         k = c["current"]
         ch = k["change_4wk_s_km"]
@@ -170,6 +179,20 @@ def build():
                  f"<p class=note>{'Includes a ' + format(gain * 100, '.1f') + ' % super-shoe allowance. ' if gain else ''}"
                  "Estimates assume training for the distance; the marathon needs the long runs to match.</p></div>"
                  f"<div class=card><h2>Daniels training paces</h2><table>{tp}</table></div></div>")
+        from . import daniels
+        lt1v = c["thresholds"]["lt1"]
+        zr = "".join(f"<tr><td>{_esc(r['zone'])}</td><td>{r['pct_vo2'] * 100:.0f}</td><td>{pace(r['kmh'])}</td>"
+                     f"<td>{round(r['hr']) if r['hr'] else '-'}</td><td>{hms(r['time_s']) if r['time_s'] else ''}</td></tr>"
+                     for r in daniels.zone_grid(k["vdot"], c["thresholds"]["max"], prof["hr"].get("rest")))
+        sp = "".join(f"<tr><td>{_esc(lab)}</td>" + "".join(f"<td>{hms(s, frac=d < 400)}</td>" for d, s in row.items()
+                                                           if d in (200, 400, 800, 1000, 1600)) + "</tr>"
+                     for lab, row in daniels.split_table(k["vdot"]).items())
+        tt = "".join(f"<td>{m}'<br>{pace(v)}</td>" for m, v, _ in daniels.tempo_table(k["vdot"]))
+        H.append(f"<div class=grid2><div class=card><h2>Daniels zone grid</h2><div class=scroll><table><tr><th>Zone</th><th>%VO2max</th>"
+                 f"<th>/km</th><th>HR (% max)</th><th>Race</th></tr>{zr}</table></div><p class=note>HR here is Daniels' generic % of "
+                 f"max HR; your measured caps win (easy under {lt1v}).</p></div>"
+                 f"<div class=card><h2>Rep times</h2><div class=scroll><table><tr><th></th><th>200</th><th>400</th><th>800</th><th>1000</th>"
+                 f"<th>1600</th></tr>{sp}</table></div><h2>Continuous tempo by duration</h2><div class=scroll><table><tr>{tt}</tr></table></div></div></div>")
     if rd and rd.get("has_data"):
         H.append(f"<div class=card><h2>Readiness {_esc(rd['date'])} <span class='pill {rd['verdict']}'>{rd['verdict']}</span></h2>"
                  f"<p>{_esc(rd['action'])}</p><p class=note>{_esc('; '.join(rd['reasons']) or 'No flag raised.')}</p></div>")
