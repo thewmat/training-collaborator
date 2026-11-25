@@ -24,7 +24,6 @@ Batch 1:
 - Do you run with a chest strap? Which watch?
 - Any lab or field test with HR thresholds? (LT1/aerobic threshold, LT2/lactate turn point, max HR.)
 Batch 2:
-- Current injuries or ones that recur? (sets `injury.watch`; pain threshold default 2/10.)
 - Do you race in carbon-plated super shoes? (sets `racing.super_shoes`.)
 - Training style you like (threshold/Norwegian, Daniels, high volume, run/walk ...), max quality
   sessions per week, days you can't run.

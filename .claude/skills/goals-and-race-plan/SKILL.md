@@ -7,11 +7,10 @@ description: Capture what the athlete wants to achieve, turn it into measurable 
 
 ## Goal intake (their words first)
 Ask, in one batch:
-1. What do you want to achieve, and by when? (A time, a race, a ranking, beating someone, finishing,
-   staying injury-free.)
+1. What do you want to achieve, and by when? (A time, a race, a ranking, beating someone, finishing.)
 2. Why this one? (It tells you what to protect when trade-offs come.)
 3. Races entered vs considered. (Only "entered" races are commitments.)
-4. Constraints: days available, work, travel, injuries, max sessions per week, coach.
+4. Constraints: days available, work, travel, max sessions per week, coach.
 Write it to `me/goals.md` verbatim under "What I want to achieve".
 
 ## Turn it into numbers

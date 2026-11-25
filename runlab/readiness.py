@@ -7,7 +7,6 @@ Signals (Garmin daily summaries, sleep, HRV, training load) against the athlete'
   HRV          last night below Garmin's balanced range low = amber
   Body Battery morning peak < 50 = amber, < 30 = red
   load ratio   7-day load / (28-day load / 4) > 1.3 = amber, > 1.5 = red
-  pain         morning-after pain score above the athlete's threshold (default 2/10) = red
 Verdict: green = run the session at the targets; amber = run it on the slow edge of every target;
 red = replace it with easy running or rest. Data never overrides how the athlete feels in the other
 direction: a green day with heavy legs is still a day to back off.
@@ -15,12 +14,10 @@ direction: a green day with heavy legs is still a day to back off.
 import datetime as dt
 import statistics as st
 
-from . import config
 from .garmin import load as load_store
 
 
-def build(asof=None, pain=None, prof=None):
-    prof = prof or config.profile()
+def build(asof=None):
     today = dt.date.fromisoformat(asof) if asof else dt.date.today()
     daily = {r["calendarDate"]: r for r in load_store("daily.json")}
     sleep = {r["calendarDate"]: r for r in load_store("sleep.json")}
@@ -69,8 +66,6 @@ def build(asof=None, pain=None, prof=None):
     if acwr is not None:
         if acwr > 1.5: flags.append((2, f"load ratio {acwr:.2f}: this week well above the last four"))
         elif acwr > 1.3: flags.append((1, f"load ratio {acwr:.2f}"))
-    if pain is not None and pain > prof["injury"].get("pain_threshold", 2):
-        flags.append((2, f"morning pain {pain}/10 ({prof['injury'].get('watch') or 'injury watch'})"))
     level = max((l for l, _ in flags), default=0)
     verdict = ["Green", "Amber", "Red"][level]
     action = ["Run the planned session at its targets.",
@@ -85,7 +80,7 @@ def build(asof=None, pain=None, prof=None):
 
 def text(r):
     if not r["has_data"]:
-        return "No daily wellness data (needs the Garmin API sync). Readiness = how you feel + morning pain score."
+        return "No daily wellness data (needs the Garmin API sync). Readiness = how you feel."
     s = [f"{r['verdict']}: {r['action']}"]
     s += [f"  - {x}" for x in r["reasons"]] or ["  - no flag raised"]
     s.append(f"  RHR {r['rhr_today']} (7d {r['rhr_7d']}, base {r['rhr_baseline']})  sleep {r['sleep_last']} (7d {r['sleep_7d']})  "

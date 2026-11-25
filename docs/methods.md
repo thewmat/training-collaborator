@@ -68,7 +68,7 @@ the best race VDOT by > 3 % are flagged as probable GPS error; anything above VD
 
 Against the athlete's own baseline (median of days 8-35 back): 7-day resting HR +3 bpm amber / +5 red,
 sleep score, HRV below Garmin's balanced range, Body Battery, acute:chronic load (> 1.3 amber,
-> 1.5 red), morning pain over the athlete's threshold (red). Green = run the session at its targets,
+> 1.5 red). Green = run the session at its targets,
 amber = slow edge of every band, red = easy or rest.
 
 ## Training history (`history.py`)

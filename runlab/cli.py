@@ -157,7 +157,7 @@ def cmd_history(a):
 
 def cmd_readiness(a):
     from . import readiness
-    r = readiness.build(a.date, a.pain)
+    r = readiness.build(a.date)
     json.dump(r, open(config.out("readiness.json"), "w"), indent=1)
     print(readiness.text(r))
 
@@ -216,7 +216,7 @@ def main(argv=None):
     s.add_argument("--date"); s.add_argument("--venue"); s.add_argument("--source"); s.add_argument("--file", default="-")
     s.add_argument("--dry-run", action="store_true"); s.set_defaults(f=cmd_pbs)
     s = sub.add_parser("history", help="training history report"); s.add_argument("--json", action="store_true"); s.set_defaults(f=cmd_history)
-    s = sub.add_parser("readiness", help="today's readiness verdict"); s.add_argument("--pain", type=int); s.add_argument("--date"); s.set_defaults(f=cmd_readiness)
+    s = sub.add_parser("readiness", help="today's readiness verdict"); s.add_argument("--date"); s.set_defaults(f=cmd_readiness)
     s = sub.add_parser("dashboard", help="rebuild everything and write me/out/dashboard.html"); s.set_defaults(f=cmd_dashboard)
     s = sub.add_parser("demo", help="generate a synthetic athlete and build its dashboard")
     s.add_argument("--dir", default=os.path.join(config.ROOT, "demo")); s.add_argument("--weeks", type=int, default=30)

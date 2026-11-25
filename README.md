@@ -30,7 +30,7 @@ Then:
 1. Create your Garmin key and put it in `.env`: [docs/garmin-setup.md](docs/garmin-setup.md)
    (5 minutes). No key? `python3 -m runlab import <Garmin export zip>` works too.
 2. Open the folder in Claude Code and say **"set me up"**. Claude runs onboarding: pulls your data,
-   asks about your thresholds, coach, injuries and goals, finds your PBs, and builds your dashboard.
+   asks about your thresholds, coach and goals, finds your PBs, and builds your dashboard.
 3. After that, just talk to it: "how was this morning's session?", "am I getting fitter?", "what could
    I run for a half?", "I want to break 40 for 10K by May", "plan my race".
 

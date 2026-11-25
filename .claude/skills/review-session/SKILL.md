@@ -27,8 +27,7 @@ description: Review a run or workout the athlete has completed - execution again
    steady-state minutes, compared on matched work time. If there is no valid read, say "no fitness
    read" and why. Never adjust for shoes.
 5. **Patterns.** Check `me/log/` for the same breach in earlier sessions. If it repeats, name it.
-6. **Load and pain.** Week-to-date km vs last week. After quality or race shoes: ask for tomorrow
-   morning's pain score if an injury is watched.
+6. **Load.** Week-to-date km vs last week.
 
 ## Write
 Reply (terse):

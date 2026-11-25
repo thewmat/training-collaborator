@@ -4,7 +4,7 @@ Built from the Garmin activity list (full history, no FIT needed) plus FIT files
   years       km, runs, hours, longest run per calendar year
   weeks       Monday-start weeks: km, runs, hours, long run, quality sessions (Garmin training effect:
               anaerobic >= 2.0 or aerobic >= 3.8; FIT-only imports have no training effect, so 0)
-  breaks      gaps of 10+ days without a run (injury, illness, holidays): the shape of the history
+  breaks      gaps of 10+ days without a run (illness, holidays, time off): the shape of the history
   builds      the 12 weeks before each race / PB: mean and peak km, longest run, sessions per week
   peaks       the highest 8-week rolling volume blocks
   intensity   time below LT1 / LT1-LT2 / above LT2 per week from strap-HR FIT files

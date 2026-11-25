@@ -152,7 +152,6 @@ class TestReadinessWorkoutsReport(unittest.TestCase):
     def test_readiness(self):
         r = readiness.build()
         self.assertIn(r["verdict"], ("Green", "Amber", "Red"))
-        self.assertEqual(readiness.build(pain=5)["verdict"], "Red")
 
     def test_workouts(self):
         lib = {s["key"]: s for s in workouts.library(55, 70, 150, 170)}
