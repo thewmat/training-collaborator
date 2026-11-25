@@ -81,7 +81,7 @@ def generate(home, weeks=30, seed=7):
     acts, aid = [], 900000000
     for wk in range(weeks):
         if wk in (12, 13):
-            continue                                    # two-week break (calf strain in the story)
+            continue                                    # two-week break
         v2 = v2_at(wk, weeks)
         a = v2 - SLOPE * LT2
         easy = a + SLOPE * 140

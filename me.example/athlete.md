@@ -11,8 +11,5 @@ Claude keeps this file current. One fact per line, dated. It is the memory betwe
 ## Rules I've set
 - 
 
-## Injuries and health
-- 
-
 ## Kit
 - 

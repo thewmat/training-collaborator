@@ -68,10 +68,6 @@ DEFAULT_PROFILE = {
         "has_coach": False,      # if true: follow the coach's plan as written, review and flag only
         "name": ""
     },
-    "injury": {
-        "watch": "",             # e.g. "achilles tendon"
-        "pain_threshold": 2      # morning-after pain score (0-10) above which the next session backs off
-    },
     "preferences": {
         "system": "",            # e.g. "threshold (Norwegian-style)", "Daniels", "Lydiard"
         "max_quality_per_week": 2,

@@ -20,10 +20,6 @@
     "has_coach": false,
     "name": ""
   },
-  "injury": {
-    "watch": "",
-    "pain_threshold": 2
-  },
   "preferences": {
     "system": "",
     "max_quality_per_week": 2,

@@ -12,7 +12,7 @@ description: Review the past training week - volume, sessions executed, fitness 
    Name repeated patterns.
 4. Fitness: threshold pace now vs last week and 4 weeks ago (`runlab curve`). Say if it's a valid
    read (enough strap points near LT2).
-5. Readiness trend: resting HR vs baseline, sleep, HRV, load ratio; any pain scores logged.
+5. Readiness trend: resting HR vs baseline, sleep, HRV, load ratio.
 6. Coming week:
    - Coach's week: add pace bands and HR caps to each session (`workouts` skill, targets only), flag
      risks.
